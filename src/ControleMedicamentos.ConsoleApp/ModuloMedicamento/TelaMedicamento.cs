@@ -11,7 +11,7 @@
             Console.WriteLine("Os seguinte medicamentos estão com estoque baixo: ");
             foreach (Medicamento medi in repositorio.MedicamentoBaixoEstoque())
             {
-                Console.WriteLine($"Nome: {medi.Nome}\nQuantidade Atual: {medi.Quantidade}");
+                Console.WriteLine($"Nome: {medi.Nome}\nQuantidade Atual: {medi.Quantidade}\n-------");
             }
             Console.ResetColor();
         }
@@ -64,8 +64,8 @@
                 Console.WriteLine(" 3 - Editar medicamento");
                 Console.WriteLine(" 4 - Excluir medicamento");
                 Console.WriteLine(" 0 - Sair\n");
-
-                Console.WriteLine("Informe a opção desejada: ");
+                PoucoMedicamento();
+                Console.WriteLine("\nInforme a opção desejada: ");
                 opcao = Console.ReadLine()[0];
 
                 if (char.IsNumber(opcao))
