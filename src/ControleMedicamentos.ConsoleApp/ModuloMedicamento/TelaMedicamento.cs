@@ -3,16 +3,13 @@
     internal class TelaMedicamento
     {
         private RepositorioMedicamento repositorio = new();
-        private void PoucoMedicamento()
+        private void Avisos()
         {
-            if (repositorio.MedicamentoBaixoEstoque().Count < 1)
-                return;
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Os seguinte medicamentos estão com estoque baixo: ");
-            foreach (Medicamento medi in repositorio.MedicamentoBaixoEstoque())
-            {
-                Console.WriteLine($"Nome: {medi.Nome}\nQuantidade Atual: {medi.Quantidade}\n-------");
-            }
+            if (repositorio.MedicamentoBaixoEstoque().Count > 0)
+                Console.WriteLine("Há medicamento com baixo estoque!");
+            if (repositorio.MedicamentoSemEstoque().Count > 0)
+                Console.WriteLine("Há medicamento sem estoque!");
             Console.ResetColor();
         }
         private string ReceberInformacao(string textoApresentado)
@@ -64,7 +61,7 @@
                 Console.WriteLine(" 3 - Editar medicamento");
                 Console.WriteLine(" 4 - Excluir medicamento");
                 Console.WriteLine(" 0 - Sair\n");
-                PoucoMedicamento();
+                Avisos();
                 Console.WriteLine("\nInforme a opção desejada: ");
                 opcao = Console.ReadLine()[0];
 

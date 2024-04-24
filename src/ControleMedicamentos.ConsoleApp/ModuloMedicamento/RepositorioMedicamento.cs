@@ -93,10 +93,20 @@ namespace ControleMedicamentos.ConsoleApp.ModuloMedicamento
             ArrayList listaMedicamentosBaixoEstoque = new();
             foreach (Medicamento medi in medicamentos)
             {
-                if (medi.Quantidade < 10)
+                if (medi.Quantidade > 0 && medi.Quantidade < 10)
                     listaMedicamentosBaixoEstoque.Add(medi);
             }
             return listaMedicamentosBaixoEstoque;
+        }
+        public ArrayList MedicamentoSemEstoque()
+        {
+            ArrayList listaMedicamentosSemEstoque = new();
+            foreach (Medicamento medi in medicamentos)
+            {
+                if (medi.Quantidade == 0)
+                    listaMedicamentosSemEstoque.Add(medi);
+            }
+            return listaMedicamentosSemEstoque;
         }
     }
 }
