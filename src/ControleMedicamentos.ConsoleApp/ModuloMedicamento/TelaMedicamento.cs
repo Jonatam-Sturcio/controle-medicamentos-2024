@@ -1,14 +1,16 @@
-﻿namespace ControleMedicamentos.ConsoleApp.ModuloMedicamento
+﻿using ControleMedicamentos.ConsoleApp.Compartilhado;
+
+namespace ControleMedicamentos.ConsoleApp.ModuloMedicamento
 {
     internal class TelaMedicamento
     {
-        private RepositorioMedicamento repositorio = new();
+        public RepositorioMedicamento repositorio = new();
         private void Avisos()
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            if (repositorio.MedicamentoBaixoEstoque().Count > 0)
+            if (repositorio.PossuiBaixoEstoque())
                 Console.WriteLine("Há medicamento com baixo estoque!");
-            if (repositorio.MedicamentoSemEstoque().Count > 0)
+            if (repositorio.PossuiSemEstoque())
                 Console.WriteLine("Há medicamento sem estoque!");
             Console.ResetColor();
         }
@@ -60,6 +62,8 @@
                 Console.WriteLine(" 2 - Visualizar medicamentos");
                 Console.WriteLine(" 3 - Editar medicamento");
                 Console.WriteLine(" 4 - Excluir medicamento");
+                Console.WriteLine(" 5 - Solicitar medicamento");
+                Console.WriteLine(" 6 - Visualizar medicamentos mais retirados");
                 Console.WriteLine(" 0 - Sair\n");
                 Avisos();
                 Console.WriteLine("\nInforme a opção desejada: ");
@@ -80,57 +84,69 @@
 
             Medicamento medicamento = ObterMedicamento();
 
-            repositorio.InserirMedicamento(medicamento);
+            repositorio.Cadastrar(medicamento);
+            Notificador.AvisoColorido("Medicamento cadastrado com sucesso!", ConsoleColor.Green);
         }
         public void Visualizar()
         {
-            if (repositorio.ListaEstaVazia())
+            Entidade[] entidades = repositorio.SelecionarTodos();
+            if (!repositorio.PossuiElementos())
             {
                 Notificador.AvisoColorido("Não há nenhum medicamento registrado!", ConsoleColor.Red);
                 return;
             }
 
             MenuPrincipal.Cabecalho();
+            Console.WriteLine("{0, 5} | {1, 15} | {2, 25} | {3, 10}", "ID", "Nome", "Descrição", "Quantidade");
+            foreach (Medicamento medi in entidades)
+            {
+                if (medi == null)
+                    continue;
 
-            repositorio.MostrarMedicamentos();
+                Console.WriteLine("{0, 5} | {1, 15} | {2, 25} | {3, 10}",
+                    medi.ID, medi.Nome, medi.Descricao, medi.Quantidade);
+            }
+
             Console.ReadKey();
         }
         public void Editar()
         {
-            if (repositorio.ListaEstaVazia())
+            if (!repositorio.PossuiElementos())
             {
                 Notificador.AvisoColorido("Não há nenhum medicamento registrado!", ConsoleColor.Red);
                 return;
             }
             MenuPrincipal.Cabecalho();
 
-            string nomeMedicamento = ReceberInformacao("Informe o nome do medicamento a ser editado: ");
+            int idMedicamento = int.Parse(ReceberInformacao("Informe o id do medicamento a ser editado: "));
 
-            if (!repositorio.MedicamentoExiste(nomeMedicamento))
+            if (!repositorio.Existe(idMedicamento))
             {
-                Notificador.AvisoColorido("Não existem nenhum medicamento com esse nome!", ConsoleColor.Red);
+                Notificador.AvisoColorido("Não existem nenhum medicamento com esse id!", ConsoleColor.Red);
                 return;
             }
 
             Medicamento medicamento = ObterMedicamento();
-            repositorio.EditarMedicamento(nomeMedicamento, medicamento);
+            repositorio.Editar(idMedicamento, medicamento);
+            Notificador.AvisoColorido("Medicamento editado com sucesso!", ConsoleColor.Green);
         }
         public void Remover()
         {
-            if (repositorio.ListaEstaVazia())
+            if (!repositorio.PossuiElementos())
             {
                 Notificador.AvisoColorido("Não há nenhum medicamento registrado!", ConsoleColor.Red);
                 return;
             }
             MenuPrincipal.Cabecalho();
 
-            string nomeMedicamento = ReceberInformacao("Informe o nome do medicamento a ser removido: ");
+            int idMedicamento = int.Parse(ReceberInformacao("Informe o id do medicamento a ser removido: "));
 
-            if (!repositorio.MedicamentoExiste(nomeMedicamento))
+            if (!repositorio.Existe(idMedicamento))
             {
-                Notificador.AvisoColorido("Não existem nenhum medicamento com esse nome!", ConsoleColor.Red);
+                Notificador.AvisoColorido("Não existem nenhum medicamento com esse id!", ConsoleColor.Red);
             }
-            repositorio.RemoverMedicamento(nomeMedicamento);
+            repositorio.Excluir(idMedicamento);
+            Notificador.AvisoColorido("Medicamento excluído com sucesso!", ConsoleColor.Green);
         }
         public void AcessarMenu()
         {

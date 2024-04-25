@@ -1,112 +1,62 @@
-﻿using System.Collections;
+﻿using ControleMedicamentos.ConsoleApp.Compartilhado;
 
 namespace ControleMedicamentos.ConsoleApp.ModuloMedicamento
 {
-    internal class RepositorioMedicamento
+    internal class RepositorioMedicamento : Repositorio
     {
-        private ArrayList medicamentos = new();
-
-        public bool ListaEstaVazia()
+        public Medicamento[] MedicamentoBaixoEstoque()
         {
-            if (medicamentos.Count == 0)
-                return true;
-
-            return false;
-        }
-        public void InserirMedicamento(Medicamento medicamento)
-        {
-            if (!MedicamentoExiste(medicamento.Nome))
+            Entidade[] registros = SelecionarTodos();
+            Medicamento[] listaBaixoEstoque = new Medicamento[100];
+            int posicao = 0;
+            foreach (Medicamento medi in registros)
             {
-                medicamentos.Add(medicamento);
-                Notificador.AvisoColorido("Medicamento cadastrado com sucesso!", ConsoleColor.Green);
-                return;
-            }
-
-            Notificador.AvisoColorido("Medicamento já cadastrado, a quantidade será adicionada ao medicamento",
-                    ConsoleColor.Blue);
-
-            foreach (Medicamento medi in medicamentos)
-            {
-                if (medi.Nome == medicamento.Nome)
+                if (medi == null)
+                    continue;
+                if (medi.Quantidade < 10 && medi.Quantidade > 0)
                 {
-                    medi.Quantidade += medicamento.Quantidade;
+                    listaBaixoEstoque[posicao] = medi;
+                    posicao++;
                 }
             }
-
+            return listaBaixoEstoque;
         }
-        public void MostrarMedicamentos()
+        public Medicamento[] MedicamentoSemEstoque()
         {
-            Console.WriteLine("{0, 15} | {1, 30} | {2, 10}", "Nome", "Descrição", "Quantidade");
-            foreach (Medicamento medi in medicamentos)
+            Entidade[] registros = SelecionarTodos();
+            Medicamento[] listaSemEstoque = new Medicamento[100];
+            int posicao = 0;
+            foreach (Medicamento medi in registros)
             {
-                medi.MostrarPaciente();
-            }
-        }
-        public void EditarMedicamento(string nome, Medicamento novoMedicamento)
-        {
-            foreach (Medicamento medi in medicamentos)
-            {
-                if (medi.Nome == nome)
-                {
-                    medi.Nome = novoMedicamento.Nome;
-                    medi.Descricao = novoMedicamento.Descricao;
-                    medi.Quantidade = novoMedicamento.Quantidade;
-                    Notificador.AvisoColorido("Medicamento editado com sucesso!", ConsoleColor.Green);
-                    return;
-                }
-            }
-            Notificador.AvisoColorido("Medicamento não encontrado!", ConsoleColor.Red);
-        }
-        public void RemoverMedicamento(string nome)
-        {
-            Medicamento removerMedicamento = null;
-
-            foreach (Medicamento medi in medicamentos)
-            {
-                if (medi.Nome == nome)
-                {
-                    removerMedicamento = medi;
-                    break;
-                }
-            }
-            if (removerMedicamento != null)
-            {
-                medicamentos.Remove(removerMedicamento);
-                Notificador.AvisoColorido("Medicamento removido com sucesso!", ConsoleColor.Green);
-                return;
-            }
-            Notificador.AvisoColorido("Medicamento não encontrado!", ConsoleColor.Red);
-        }
-        public bool MedicamentoExiste(string nomeMedicamento)
-        {
-            foreach (Medicamento medi in medicamentos)
-            {
-                if (medi.Nome == nomeMedicamento)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        public ArrayList MedicamentoBaixoEstoque()
-        {
-            ArrayList listaMedicamentosBaixoEstoque = new();
-            foreach (Medicamento medi in medicamentos)
-            {
-                if (medi.Quantidade > 0 && medi.Quantidade < 10)
-                    listaMedicamentosBaixoEstoque.Add(medi);
-            }
-            return listaMedicamentosBaixoEstoque;
-        }
-        public ArrayList MedicamentoSemEstoque()
-        {
-            ArrayList listaMedicamentosSemEstoque = new();
-            foreach (Medicamento medi in medicamentos)
-            {
+                if (medi == null)
+                    continue;
                 if (medi.Quantidade == 0)
-                    listaMedicamentosSemEstoque.Add(medi);
+                {
+                    listaSemEstoque[posicao] = medi;
+                    posicao++;
+                }
             }
-            return listaMedicamentosSemEstoque;
+            return listaSemEstoque;
+        }
+        public bool PossuiBaixoEstoque()
+        {
+            Medicamento[] baixoEstoque = MedicamentoBaixoEstoque();
+            for (int i = 0; i < baixoEstoque.Length; i++)
+            {
+                if (baixoEstoque[i] != null)
+                    return true;
+            }
+            return false;
+        }
+        public bool PossuiSemEstoque()
+        {
+            Medicamento[] semEstoque = MedicamentoSemEstoque();
+            for (int i = 0; i < semEstoque.Length; i++)
+            {
+                if (semEstoque[i] != null)
+                    return true;
+            }
+            return false;
         }
     }
 }

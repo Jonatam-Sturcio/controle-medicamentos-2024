@@ -1,13 +1,11 @@
-﻿using ControleMedicamentos.ConsoleApp.ModuloMedicamento;
-
-namespace ControleMedicamentos.ConsoleApp
+﻿namespace ControleMedicamentos.ConsoleApp
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            TelaMedicamento tela = new();
-            tela.AcessarMenu();
+            MenuPrincipal principal = new();
+            principal.IniciarPrograma();
         }
     }
 }

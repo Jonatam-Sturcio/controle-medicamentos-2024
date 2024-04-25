@@ -1,4 +1,4 @@
-﻿namespace ControleMedicamentos.ConsoleApp
+﻿namespace ControleMedicamentos.ConsoleApp.Compartilhado
 {
     internal class Notificador
     {

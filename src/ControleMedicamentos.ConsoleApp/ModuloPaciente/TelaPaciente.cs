@@ -1,8 +1,10 @@
-﻿namespace ControleMedicamentos.ConsoleApp.ModuloPaciente
+﻿using ControleMedicamentos.ConsoleApp.Compartilhado;
+
+namespace ControleMedicamentos.ConsoleApp.ModuloPaciente
 {
     internal class TelaPaciente
     {
-        private RepositorioPaciente repositorio = new();
+        public RepositorioPaciente repositorio = new();
         private string ReceberInformacao(string textoApresentado)
         {
             string informacao = "";
@@ -58,65 +60,73 @@
             MenuPrincipal.Cabecalho();
 
             Paciente paciente = ObterPaciente();
-            if (repositorio.PacienteExiste(paciente.Nome))
-            {
-                Notificador.AvisoColorido("Já existe um chamado com esse nome!", ConsoleColor.Red);
-                return;
-            }
 
-            repositorio.InserirPaciente(paciente);
+            repositorio.Cadastrar(paciente);
+            Notificador.AvisoColorido("Paciente cadastrado com sucesso!", ConsoleColor.Green);
         }
         public void Visualizar()
         {
-            if (repositorio.ListaEstaVazia())
+            Entidade[] entidades = repositorio.SelecionarTodos();
+            if (!repositorio.PossuiElementos())
             {
                 Notificador.AvisoColorido("Não há nenhum paciente registrado!", ConsoleColor.Red);
                 return;
             }
 
             MenuPrincipal.Cabecalho();
+            Console.WriteLine("{0, 5} | {1, 20} | {2, 15} | {3, 25} | {4,15}",
+                "ID", "Nome", "CPF", "Endereço", "Cartão SUS");
+            foreach (Paciente paci in entidades)
+            {
+                if (paci == null)
+                    continue;
 
-            repositorio.MostrarPacientes();
+                Console.WriteLine("{0, 5} | {1, 20} | {2, 15} | {3, 25} | {4,15}",
+                    paci.ID, paci.Nome, paci.CPF, paci.Endereco, paci.CartaoSus);
+            }
+
             Console.ReadKey();
         }
         public void Editar()
         {
-            if (repositorio.ListaEstaVazia())
+            if (!repositorio.PossuiElementos())
             {
                 Notificador.AvisoColorido("Não há nenhum paciente registrado!", ConsoleColor.Red);
                 return;
             }
             MenuPrincipal.Cabecalho();
 
-            string nomePaciente = ReceberInformacao("Informe o nome do paciente a ser editado: ");
+            int idPaciente = int.Parse(ReceberInformacao("Informe o id do paciente a ser editado: "));
 
-            if (!repositorio.PacienteExiste(nomePaciente))
+            if (!repositorio.Existe(idPaciente))
             {
-                Notificador.AvisoColorido("Não existem nenhum paciênte com esse nome!", ConsoleColor.Red);
+                Notificador.AvisoColorido("Não existem nenhum paciente com esse id!", ConsoleColor.Red);
                 return;
             }
 
             Paciente paciente = ObterPaciente();
-            repositorio.EditarPaciente(nomePaciente, paciente);
+            repositorio.Editar(idPaciente, paciente);
+            Notificador.AvisoColorido("Paciente editado com sucesso!", ConsoleColor.Green);
         }
         public void Remover()
         {
-            if (repositorio.ListaEstaVazia())
+            if (!repositorio.PossuiElementos())
             {
                 Notificador.AvisoColorido("Não há nenhum paciente registrado!", ConsoleColor.Red);
                 return;
             }
             MenuPrincipal.Cabecalho();
 
-            string nomePaciente = ReceberInformacao("Informe o nome do paciente a ser removido: ");
+            int idPaciente = int.Parse(ReceberInformacao("Informe o id do paciente a ser removido: "));
 
-            if (!repositorio.PacienteExiste(nomePaciente))
+            if (!repositorio.Existe(idPaciente))
             {
-                Notificador.AvisoColorido("Não existem nenhum paciente com esse nome!", ConsoleColor.Red);
+                Notificador.AvisoColorido("Não existem nenhum paciente com esse id!", ConsoleColor.Red);
             }
-            repositorio.RemoverPaciente(nomePaciente);
+            repositorio.Excluir(idPaciente);
+            Notificador.AvisoColorido("Paciente excluído com sucesso!", ConsoleColor.Green);
         }
-        public void AcessarMenuPaciente()
+        public void AcessarMenu()
         {
             while (true)
             {
