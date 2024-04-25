@@ -48,6 +48,7 @@ namespace ControleMedicamentos.ConsoleApp.ModuloRequisicao
 
             requisicao.Paciente = (Paciente)telaPaciente.repositorio.SelecionarPorId(id_Paciente);
             requisicao.Medicamento = (Medicamento)telaMedicamento.repositorio.SelecionarPorId(id_Medicamento);
+            telaMedicamento.RetirarQuantidade(qtdMedicamento, id_Medicamento);
             requisicao.Quantidade = qtdMedicamento;
             requisicao.DataValidade = DateTime.Parse(ReceberInformacao("Informe a data de validade da requisição: "));
             return requisicao;
@@ -81,7 +82,6 @@ namespace ControleMedicamentos.ConsoleApp.ModuloRequisicao
             MenuPrincipal.Cabecalho();
 
             Requisicao requisicao = ObterRequisicao();
-
             repositorio.Cadastrar(requisicao);
             Notificador.AvisoColorido("Requisição cadastrada com sucesso!", ConsoleColor.Green);
         }
@@ -103,7 +103,8 @@ namespace ControleMedicamentos.ConsoleApp.ModuloRequisicao
                     continue;
 
                 Console.WriteLine("{0, 5} | {1, 15} | {2, 15} | {3, 12} | {4, 18}",
-                    requi.ID, requi.Paciente.Nome, requi.Medicamento.Nome, requi.Quantidade, requi.DataValidade);
+                    requi.ID, requi.Paciente.Nome, requi.Medicamento.Nome,
+                    requi.Quantidade, requi.DataValidade.ToShortDateString);
             }
 
             Console.ReadKey();
