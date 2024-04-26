@@ -36,7 +36,6 @@ namespace ControleMedicamentos.ConsoleApp.ModuloRequisicao
                 {
                     id_Paciente = int.Parse(ReceberInformacao("Informe o id do paciente: "));
                     id_Medicamento = int.Parse(ReceberInformacao("Informe o id do medicamento: "));
-                    qtdMedicamento = int.Parse(ReceberInformacao("Informe a quantidade a ser retirado do medicamento: "));
                 }
                 catch
                 {
@@ -45,12 +44,21 @@ namespace ControleMedicamentos.ConsoleApp.ModuloRequisicao
                 }
                 break;
             } while (true);
-
             requisicao.Paciente = (Paciente)telaPaciente.repositorio.SelecionarPorId(id_Paciente);
             requisicao.Medicamento = (Medicamento)telaMedicamento.repositorio.SelecionarPorId(id_Medicamento);
-            telaMedicamento.RetirarQuantidade(qtdMedicamento, id_Medicamento);
-            requisicao.Quantidade = qtdMedicamento;
-            requisicao.DataValidade = DateTime.Parse(ReceberInformacao("Informe a data de validade da requisição: "));
+            do
+            {
+                qtdMedicamento = int.Parse(ReceberInformacao("Informe a quantidade a ser retirado do medicamento: "));
+                if (!telaMedicamento.repositorio.RetirarQuantidade(qtdMedicamento, id_Medicamento))
+                {
+                    Notificador.AvisoColorido("A quantidade retirada é maior que a possuída no estoque", ConsoleColor.Red);
+                    continue;
+                }
+                requisicao.Quantidade = qtdMedicamento;
+                break;
+            } while (true);
+            requisicao.DataValidade = DateTime.Parse(ReceberInformacao("Informe a data de validade da requisição" +
+                " no formato (dd/mm/aaaa): "));
             return requisicao;
         }
         private int Menu()
@@ -104,7 +112,7 @@ namespace ControleMedicamentos.ConsoleApp.ModuloRequisicao
 
                 Console.WriteLine("{0, 5} | {1, 15} | {2, 15} | {3, 12} | {4, 18}",
                     requi.ID, requi.Paciente.Nome, requi.Medicamento.Nome,
-                    requi.Quantidade, requi.DataValidade.ToShortDateString);
+                    requi.Quantidade, requi.DataValidade.Date.ToString("dd/MM/yyyy"));
             }
 
             Console.ReadKey();

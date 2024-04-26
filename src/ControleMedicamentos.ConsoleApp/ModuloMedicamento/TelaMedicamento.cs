@@ -7,11 +7,16 @@ namespace ControleMedicamentos.ConsoleApp.ModuloMedicamento
         public RepositorioMedicamento repositorio = new();
         private void Avisos()
         {
-            Console.ForegroundColor = ConsoleColor.Red;
             if (repositorio.PossuiBaixoEstoque())
+            {
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.WriteLine("Há medicamento com baixo estoque!");
+            }
             if (repositorio.PossuiSemEstoque())
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Há medicamento sem estoque!");
+            }
             Console.ResetColor();
         }
         private string ReceberInformacao(string textoApresentado)
@@ -78,6 +83,22 @@ namespace ControleMedicamentos.ConsoleApp.ModuloMedicamento
 
             return Convert.ToInt32(opcao + "");
         }
+        private void ExibirListaMedicamentos(Entidade[] entidades)
+        {
+            Console.WriteLine("{0, 5} | {1, 15} | {2, 25} | {3, 10}", "ID", "Nome", "Descrição", "Quantidade");
+            foreach (Medicamento medi in entidades)
+            {
+                if (medi == null)
+                    continue;
+                if (medi.Quantidade < 10)
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                if (medi.Quantidade == 0)
+                    Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("{0, 5} | {1, 15} | {2, 25} | {3, 10}",
+                    medi.ID, medi.Nome, medi.Descricao, medi.Quantidade);
+                Console.ResetColor();
+            }
+        }
         public void Inserir()
         {
             MenuPrincipal.Cabecalho();
@@ -95,17 +116,8 @@ namespace ControleMedicamentos.ConsoleApp.ModuloMedicamento
                 Notificador.AvisoColorido("Não há nenhum medicamento registrado!", ConsoleColor.Red);
                 return;
             }
-
             MenuPrincipal.Cabecalho();
-            Console.WriteLine("{0, 5} | {1, 15} | {2, 25} | {3, 10}", "ID", "Nome", "Descrição", "Quantidade");
-            foreach (Medicamento medi in entidades)
-            {
-                if (medi == null)
-                    continue;
-
-                Console.WriteLine("{0, 5} | {1, 15} | {2, 25} | {3, 10}",
-                    medi.ID, medi.Nome, medi.Descricao, medi.Quantidade);
-            }
+            ExibirListaMedicamentos(entidades);
 
             Console.ReadKey();
         }
@@ -157,7 +169,7 @@ namespace ControleMedicamentos.ConsoleApp.ModuloMedicamento
                 if (menu == 0)
                     break;
 
-                if (menu != 1 && menu != 2 && menu != 3 && menu != 4)
+                if (menu != 1 && menu != 2 && menu != 3 && menu != 4 && menu != 5 && menu != 6)
                 {
                     Notificador.AvisoColorido("Opção Inválida! Tente novamente!", ConsoleColor.Red);
                     continue;
@@ -168,18 +180,72 @@ namespace ControleMedicamentos.ConsoleApp.ModuloMedicamento
                     Visualizar();
                 else if (menu == 3)
                     Editar();
-                else
+                else if (menu == 4)
                     Remover();
+                else if (menu == 5)
+                    SolicitarMedicamento();
+                else
+                    MedicamentoMaisRetirado();
+
             }
         }
-        public bool RetirarQuantidade(int qtd, int id)
+        public void SolicitarMedicamento()
         {
-            Medicamento medicamento = (Medicamento)repositorio.SelecionarPorId(id);
-            if (medicamento.Quantidade < qtd)
-                return false;
-            medicamento.Quantidade -= qtd;
-            repositorio.Editar(id, medicamento);
-            return true;
+            if (!repositorio.PossuiElementos())
+            {
+                Notificador.AvisoColorido("Não há nenhum medicamento registrado!", ConsoleColor.Red);
+                return;
+            }
+            MenuPrincipal.Cabecalho();
+
+            int idMedicamento = int.Parse(ReceberInformacao("Informe o id do medicamento solicitado: "));
+
+            int qtd = int.Parse(ReceberInformacao("Informe a quantidade solicitada: "));
+
+            if (!repositorio.Existe(idMedicamento))
+            {
+                Notificador.AvisoColorido("Não existem nenhum medicamento com esse id!", ConsoleColor.Red);
+                return;
+            }
+
+            Medicamento medicamento = (Medicamento)repositorio.SelecionarPorId(idMedicamento);
+            medicamento.Quantidade += qtd;
+            repositorio.Editar(idMedicamento, medicamento);
+            Notificador.AvisoColorido("Medicamento solicitado com sucesso!", ConsoleColor.Green);
+        }
+        public void MedicamentoMaisRetirado()
+        {
+            int cont = 0;
+            Medicamento[] medicamentos = new Medicamento[100];
+            Entidade[] entidades = repositorio.SelecionarTodos();
+            foreach (Medicamento med in entidades)
+            {
+                medicamentos[cont++] = med;
+            }
+            for (int i = 0; i < medicamentos.Length - 1; i++)
+            {
+                for (int j = 0; j < medicamentos.Length - i - 1; j++)
+                {
+                    if (medicamentos[j] == null)
+                        continue;
+                    if (medicamentos[j + 1] != null && medicamentos[j].QtdRetirado < medicamentos[j + 1].QtdRetirado)
+                    {
+                        Medicamento temp = medicamentos[j];
+                        medicamentos[j] = medicamentos[j + 1];
+                        medicamentos[j + 1] = temp;
+                    }
+                }
+            }
+            MenuPrincipal.Cabecalho();
+            Console.WriteLine("{0, 5} | {1, 15} | {2, 20} |", "ID", "Nome", "Quantidade Retirada");
+            foreach (Medicamento medi in medicamentos)
+            {
+                if (medi == null)
+                    continue;
+                Console.WriteLine("{0, 5} | {1, 15} | {2, 20} |",
+                    medi.ID, medi.Nome, medi.QtdRetirado);
+            }
+            Console.ReadKey();
         }
     }
 }

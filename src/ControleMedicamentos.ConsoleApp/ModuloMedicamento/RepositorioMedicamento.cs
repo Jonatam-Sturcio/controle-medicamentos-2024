@@ -58,5 +58,15 @@ namespace ControleMedicamentos.ConsoleApp.ModuloMedicamento
             }
             return false;
         }
+        public bool RetirarQuantidade(int qtd, int id)
+        {
+            Medicamento medicamento = (Medicamento)SelecionarPorId(id);
+            if (medicamento.Quantidade < qtd)
+                return false;
+            medicamento.Quantidade -= qtd;
+            medicamento.QtdRetirado += qtd;
+            Editar(id, medicamento);
+            return true;
+        }
     }
 }
